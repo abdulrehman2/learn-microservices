@@ -1,0 +1,26 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace CommandsService.Models
+{
+    public class Platform
+    {
+        [Required]
+        [Key]
+        public int Id { get; set; }
+
+        [Required]
+        public int ExternalId { get; set; }
+
+
+        [Required]
+        public int Name { get; set; }
+
+        public ICollection<Command> Commands { get; set; } = new List<Command>();
+
+
+    }
+}
