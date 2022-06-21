@@ -40,7 +40,8 @@ namespace PlatformService
                 services.AddDbContext<Data.AppDbContext>(opt => opt.UseInMemoryDatabase("InMem"));
             }
 
-            services.AddTransient<Data.IPlatformRepository, Data.PlatformRepository>();
+            services.AddScoped<Data.IPlatformRepository, Data.PlatformRepository>();
+            services.AddSingleton<AsyncDataServices.IMessageBusClient, AsyncDataServices.MessageBusClient>();
             services.AddControllers();
             services.AddHttpClient<SyncDataServices.Http.ICommandDataClient, SyncDataServices.Http.HttpCommandDataClient>();
             services.AddSwaggerGen(c =>

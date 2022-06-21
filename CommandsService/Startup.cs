@@ -1,3 +1,4 @@
+using CommandsService.AsyncDataServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -26,10 +27,11 @@ namespace CommandsService
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddSingleton<EventProcessing.IEventProcessor, EventProcessing.EventProcessor>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-            services.AddTransient<Data.ICommandRepo, Data.CommandRepo>();
+            services.AddScoped<Data.ICommandRepo, Data.CommandRepo>();
             services.AddControllers();
+            services.AddHostedService<MessageBusSubscriber>();
             services.AddDbContext<Data.AppDbContext>(x => x.UseInMemoryDatabase("InMem"));
             services.AddSwaggerGen(c =>
             {

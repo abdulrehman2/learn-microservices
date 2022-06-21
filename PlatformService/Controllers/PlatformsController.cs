@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using PlatformService.AsyncDataServices;
 using PlatformService.Dtos;
 using PlatformService.SyncDataServices.Http;
 using System;
@@ -17,11 +18,13 @@ namespace PlatformService.Controllers
         private readonly Data.IPlatformRepository _platformRepository;
         private readonly IMapper _mappper;
         private readonly ICommandDataClient _commandDataClient;
-        public PlatformsController(Data.IPlatformRepository platformRepository, IMapper mappper, ICommandDataClient commandDataClient)
+        private readonly IMessageBusClient _messageBusClient;
+        public PlatformsController(Data.IPlatformRepository platformRepository, IMapper mappper, ICommandDataClient commandDataClient, IMessageBusClient messageBusClient)
         {
             _platformRepository = platformRepository;
             _mappper = mappper;
             _commandDataClient = commandDataClient;
+            _messageBusClient = messageBusClient;
         }
 
         [HttpGet]
@@ -48,6 +51,8 @@ namespace PlatformService.Controllers
             _platformRepository.CreatePlatform(model);
             _platformRepository.SaveChanges();
             var platformToRead = _mappper.Map<PlatformReadDto>(model);
+
+            //Send Message Synchronously
             try
             {
                await _commandDataClient.SendPlatformToCommand(platformToRead);
@@ -55,6 +60,18 @@ namespace PlatformService.Controllers
             catch(Exception e)
             {
                 Console.WriteLine($"--> Could not send synchronously:{e.Message}");
+            }
+
+            //Send Message Async
+            try
+            {
+                var publishDto = _mappper.Map<Dtos.PlatformPublishDto>(platformToRead);
+                publishDto.Event = "Platform_Published";
+                _messageBusClient.PublishNewPlatform(publishDto);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"--> Could not send asynchronously:{e.Message}");
             }
 
             return CreatedAtRoute(nameof(GetPlatformById), new { id = platformToRead.Id }, platformToRead);

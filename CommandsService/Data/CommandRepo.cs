@@ -26,6 +26,13 @@ namespace CommandsService.Data
             return _entities.Platforms.Any(x => x.Id == id);
         }
 
+        public bool IsExternalPlatformExist(int externalPlatformId)
+        {
+            return _entities.Platforms.Any(x => x.ExternalId == externalPlatformId);
+        }
+
+        
+
         public void CreatePlatform(Platform platform)
         {
             if (platform == null)

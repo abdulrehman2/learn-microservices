@@ -21,6 +21,13 @@ namespace CommandsService.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet]
+        public ActionResult GetPlatforms()
+        {
+            var platforms = _commandRepo.GetAllPlatforms();
+            return Ok(_mapper.Map<IEnumerable<Dtos.PlatformToRead>>(platforms));
+        }
+
         [HttpPost]
         public ActionResult TestInboundConnection()
         {

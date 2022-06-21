@@ -17,7 +17,7 @@ namespace CommandsService.Models
 
 
         [Required]
-        public int Name { get; set; }
+        public string Name { get; set; }
 
         public ICollection<Command> Commands { get; set; } = new List<Command>();
 
